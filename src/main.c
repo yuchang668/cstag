@@ -673,7 +673,7 @@ static void dumptag(FILE *fp, iconv_t cd, db_t db,
                 print(fp, cd, "total: ");
                 break;
         }
-        print(fp, cd, "%d lines\n", (rows > 0 ? rows - 1 : rows));
+        print(fp, cd, "%d lines\n", rows);
     }
 
     if (opcode > 9)
@@ -681,7 +681,7 @@ static void dumptag(FILE *fp, iconv_t cd, db_t db,
 
     switch (tagfmt) {
         case TAGXML:
-            for (row = 1; row < rows; row++)
+            for (row = 1; row <= rows; row++)
                 echoxml(fp, cd, cwd,
                         table[row * cols + FIELD_IDX_PATH],
                         table[row * cols + FIELD_IDX_MARK],
@@ -703,7 +703,7 @@ static void dumptag(FILE *fp, iconv_t cd, db_t db,
                         table[row * cols + FIELD_IDX_EXTRAS]);
             break;
         case TAGCTAGS:
-            for (row = 1; row < rows; row++)
+            for (row = 1; row <= rows; row++)
                 echotag(fp, cd, cwd,
                         table[row * cols + FIELD_IDX_PATH],
                         table[row * cols + FIELD_IDX_NAME],
@@ -723,7 +723,7 @@ static void dumptag(FILE *fp, iconv_t cd, db_t db,
                         table[row * cols + FIELD_IDX_EXTRAS]);
             break;
         default:
-            for (row = 1; row < rows; row++)
+            for (row = 1; row <= rows; row++)
                 echofmt(fp, cd, cwd, tagformats[tagfmt], &table[row * cols]);
             break;
     }

@@ -148,12 +148,18 @@ static void strmatch(sqlite3_context *ctx, int argc, sqlite3_value *argv[])
     sqlite3_result_int(ctx, ret == 0);
 }
 
+static void delregexp(void *regex)
+{
+    regfree(regex);
+    sqlite3_free(regex);
+}
+
 static void strregexp(sqlite3_context *ctx, int argc, sqlite3_value *argv[])
 {
     int ret;
     char *search, *string;
     unsigned char mode = *(unsigned char *) sqlite3_user_data(ctx);
-    regex_t regex = {0};
+    regex_t *regex;
 
     if (argc != 2 || sqlite3_value_type(argv[0]) != SQLITE_TEXT || sqlite3_value_type(argv[1]) != SQLITE_TEXT)
         return;
@@ -165,12 +171,15 @@ static void strregexp(sqlite3_context *ctx, int argc, sqlite3_value *argv[])
         return;
 
     if (mode & DB_REGEX) {
-        ret = regcomp(&regex, search,
-                      REG_NOSUB | (mode & DB_ICASE ? REG_ICASE : 0) | (mode & DB_EXREG ? REG_EXTENDED : 0));
-        if (ret == 0) {
-            ret = regexec(&regex, string, 0, NULL, 0);
-            regfree(&regex);
+        regex = sqlite3_get_auxdata(ctx, 0);
+        if (!regex && (regex = sqlite3_malloc(sizeof(*regex)))) {
+            if (regcomp(regex, search,
+                        REG_NOSUB | (mode & DB_ICASE ? REG_ICASE : 0) | (mode & DB_EXREG ? REG_EXTENDED : 0)) == 0)
+                sqlite3_set_auxdata(ctx, 0, regex, delregexp);
+            else
+                regex = (sqlite3_free(regex), NULL);
         }
+        ret = regex ? regexec(regex, string, 0, NULL, 0) : -1;
     } else
         ret = (mode & DB_ICASE ? sqlite3_stricmp : strcmp)(search, string);
 
