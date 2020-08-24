@@ -165,11 +165,15 @@ static void strregexp(sqlite3_context *ctx, int argc, sqlite3_value *argv[])
     if (!search || !string)
         return;
 
-    ret = regcomp(&regex, search, REG_NOSUB | (mode & DB_ICASE ? REG_ICASE : 0) | (mode & DB_REGEX ? REG_EXTENDED : 0));
-    if (ret == 0) {
-        ret = regexec(&regex, string, 0, NULL, 0);
-        regfree(&regex);
-    }
+    if (mode & DB_REGEX) {
+        ret = regcomp(&regex, search,
+                      REG_NOSUB | (mode & DB_ICASE ? REG_ICASE : 0) | (mode & DB_EXREG ? REG_EXTENDED : 0));
+        if (ret == 0) {
+            ret = regexec(&regex, string, 0, NULL, 0);
+            regfree(&regex);
+        }
+    } else
+        ret = (mode & DB_ICASE ? sqlite3_stricmp : strcmp)(search, string);
 
     sqlite3_result_int(ctx, ret == 0);
 }

@@ -738,6 +738,7 @@ int main(int argc, char *const argv[])
     FILE *si = NULL;
     FILE *so = NULL;
     char regexp = 0;
+    char exmode = 0;
     char opcode = 0;
     char tagfmt = 0;
     char update = 0;
@@ -791,6 +792,7 @@ int main(int argc, char *const argv[])
             case '8':
             case '9':
                 opcode = ch2code(tmp);
+                exmode = opcode == 6;
                 search = optarg;
                 break;
             case '7':
@@ -802,12 +804,14 @@ int main(int argc, char *const argv[])
                 search = optarg;
                 break;
             case 'e':
-                regexp = 0;
+                regexp = 1;
+                exmode = 0;
                 opcode = 0;
                 search = optarg;
                 break;
             case 'E':
                 regexp = 1;
+                exmode = 1;
                 opcode = 0;
                 search = optarg;
                 break;
@@ -996,7 +1000,8 @@ int main(int argc, char *const argv[])
             }
         }
 
-        dumptag(fp ? fp : stdout, cd, db, (regexp ? DB_REGEX : 0) | (caseless ? DB_ICASE : 0) | DB_MATCH,
+        dumptag(fp ? fp : stdout, cd, db,
+                (exmode ? DB_EXREG : 0) | (regexp ? DB_REGEX : 0) | (caseless ? DB_ICASE : 0) | DB_MATCH,
                 debugmode, tagfmt, opcode, search, cwd);
 
         if (fp) {
@@ -1024,6 +1029,7 @@ int main(int argc, char *const argv[])
             case '8':
             case '9':
                 opcode = ch2code(tmp);
+                exmode = opcode == 6;
                 search = temp;
                 break;
             case '7':
@@ -1035,12 +1041,14 @@ int main(int argc, char *const argv[])
                 search = temp;
                 break;
             case 'e':
-                regexp = 0;
+                regexp = 1;
+                exmode = 0;
                 opcode = 0;
                 search = temp;
                 break;
             case 'E':
                 regexp = 1;
+                exmode = 1;
                 opcode = 0;
                 search = temp;
                 break;
@@ -1052,6 +1060,7 @@ int main(int argc, char *const argv[])
                 break;
             case 'R':
                 regexp = 0;
+                exmode = 0;
                 caseless = 0;
                 break;
             case 'F':
@@ -1066,7 +1075,8 @@ int main(int argc, char *const argv[])
         }
 
         if (opcode || search)
-            dumptag(stdout, NULL, db, (regexp ? DB_REGEX : 0) | (caseless ? DB_ICASE : 0) | DB_MATCH,
+            dumptag(stdout, NULL, db,
+                    (exmode ? DB_EXREG : 0) | (regexp ? DB_REGEX : 0) | (caseless ? DB_ICASE : 0) | DB_MATCH,
                     1, TAGCSCOPE, opcode, search, cwd);
     }
 

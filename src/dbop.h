@@ -3,9 +3,10 @@
 
 #include <stdint.h>
 
-#define DB_MATCH                1
-#define DB_REGEX                2
-#define DB_ICASE                4
+#define DB_ICASE                1
+#define DB_MATCH                2
+#define DB_REGEX                4
+#define DB_EXREG                8
 
 #define FIELD_STR_PATH          "path"
 #define FIELD_STR_MARK          "mark"
