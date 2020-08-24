@@ -330,6 +330,15 @@ static void echofmt(FILE *fp, iconv_t cd, const char *cwd, const char *fmt, char
     const char *p, *q, *k;
     char *field, tmpbuf[PATH_MAX * 3 / 2 + 1] = {0}, pathbuf[PATH_MAX * 2 + 1] = {0};
 
+    if (!fields[FIELD_IDX_MARK] ||
+        !fields[FIELD_IDX_PATH] ||
+        !fields[FIELD_IDX_NAME] ||
+        !fields[FIELD_IDX_KIND] ||
+        !fields[FIELD_IDX_LINE] ||
+        !fields[FIELD_IDX_PATTERN] ||
+        !fields[FIELD_IDX_COMPACT])
+        return;
+
     for (idx = -1, q = NULL, p = fmt; *p; idx = -1, p++) {
         switch (*p) {
             case *FIELD_CHR_PATH:
@@ -494,6 +503,9 @@ static void echoxml(FILE *fp, iconv_t cd, const char *cwd,
 {
     char buf[PATH_MAX * 3 / 2 + 1] = {0}, pathbuf[PATH_MAX * 2 + 1] = {0};
 
+    if (!mark || !path || !name || !kind || !line || !pattern || !compact)
+        return;
+
     path = pathescape(relpath(cwd, path, pathbuf), buf);
 
     print(fp, cd, "<tag mark=\"%s\">", mark);
@@ -579,6 +591,9 @@ static void echotag(FILE *fp, iconv_t cd, const char *cwd,
                     const char *extras)
 {
     char buf[PATH_MAX * 3 / 2 + 1] = {0}, pathbuf[PATH_MAX * 2 + 1] = {0};
+
+    if (!path || !name || !kind || !line || !pattern)
+        return;
 
     path = pathescape(relpath(cwd, path, pathbuf), buf);
 
