@@ -1,5 +1,4 @@
 #include <regex.h>
-#include <ctype.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -529,10 +528,10 @@ db_t dbopen(const char *base, const char *path, unsigned char mode)
     }
 
     if (sqlite3_open(path, &db->db3) != SQLITE_OK ||
-        sqlite3_create_function(db->db3, "MATCH", 2, SQLITE_UTF8, &db->mode, strmatch, NULL, NULL) != SQLITE_OK ||
-        sqlite3_create_function(db->db3, "REGEXP", 2, SQLITE_UTF8, &db->mode, strregexp, NULL, NULL) != SQLITE_OK ||
-        sqlite3_create_function(db->db3, "ABSPATH", 1, SQLITE_UTF8, db->path, toabspath, NULL, NULL) != SQLITE_OK ||
-        sqlite3_create_function(db->db3, "RELPATH", 1, SQLITE_UTF8, db->path, torelpath, NULL, NULL) != SQLITE_OK ||
+        sqlite3_create_function(db->db3, "match", 2, SQLITE_UTF8, &db->mode, strmatch, NULL, NULL) != SQLITE_OK ||
+        sqlite3_create_function(db->db3, "regexp", 2, SQLITE_UTF8, &db->mode, strregexp, NULL, NULL) != SQLITE_OK ||
+        sqlite3_create_function(db->db3, "abspath", 1, SQLITE_UTF8, db->path, toabspath, NULL, NULL) != SQLITE_OK ||
+        sqlite3_create_function(db->db3, "relpath", 1, SQLITE_UTF8, db->path, torelpath, NULL, NULL) != SQLITE_OK ||
         sqlite3_exec(db->db3, SQL_INIT, NULL, NULL, NULL) != SQLITE_OK) {
         sqlite3_close(db->db3);
         sqlite3_free(db);
