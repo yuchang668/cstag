@@ -148,6 +148,12 @@ __attribute__((weak)) ssize_t getline(char **lineptr, size_t *n, FILE *fp)
     return rc;
 }
 
+static inline char *torelpath(const char *cwd, const char *path, char buf[])
+{
+    char pathbuf[PATH_MAX * 2 + 1] = {0};
+    return pathescape(relpath(cwd, path, pathbuf), buf);
+}
+
 /**
  * findfile的回调函数，将文件路径写入数据库
  * @param path 文件路径
@@ -328,7 +334,7 @@ static void echofmt(FILE *fp, iconv_t cd, const char *cwd, const char *fmt, char
     int idx, len;
     char ch, buf[32];
     const char *p, *q, *k;
-    char *field, tmpbuf[PATH_MAX * 3 / 2 + 1] = {0}, pathbuf[PATH_MAX * 2 + 1] = {0};
+    char *field, pathbuf[(PATH_MAX + 1) * 3] = {0};
 
     if (!fields[FIELD_IDX_MARK] ||
         !fields[FIELD_IDX_PATH] ||
@@ -450,7 +456,7 @@ static void echofmt(FILE *fp, iconv_t cd, const char *cwd, const char *fmt, char
                 strcpy(buf + len, "s");
                 field = fields[idx];
                 if (idx == FIELD_IDX_PATH)
-                    field = pathescape(relpath(cwd, field, pathbuf), tmpbuf);
+                    field = torelpath(cwd, field, pathbuf);
                 print(fp, cd, buf, field);
             }
             q = NULL;
@@ -501,12 +507,12 @@ static void echoxml(FILE *fp, iconv_t cd, const char *cwd,
                     const char *nscope,
                     const char *extras)
 {
-    char buf[PATH_MAX * 3 / 2 + 1] = {0}, pathbuf[PATH_MAX * 2 + 1] = {0};
+    char pathbuf[(PATH_MAX + 1) * 3] = {0};
 
     if (!mark || !path || !name || !kind || !line || !pattern || !compact)
         return;
 
-    path = pathescape(relpath(cwd, path, pathbuf), buf);
+    path = torelpath(cwd, path, pathbuf);
 
     print(fp, cd, "<tag mark=\"%s\">", mark);
     print(fp, cd,
@@ -590,12 +596,12 @@ static void echotag(FILE *fp, iconv_t cd, const char *cwd,
                     const char *nscope,
                     const char *extras)
 {
-    char buf[PATH_MAX * 3 / 2 + 1] = {0}, pathbuf[PATH_MAX * 2 + 1] = {0};
+    char pathbuf[(PATH_MAX + 1) * 3] = {0};
 
     if (!path || !name || !kind || !line || !pattern)
         return;
 
-    path = pathescape(relpath(cwd, path, pathbuf), buf);
+    path = torelpath(cwd, path, pathbuf);
 
     print(fp, cd, "%s\t%s\t%s;\"\tkind:%s\tline:%s", name, path, pattern, kind, line);
     if (lang && *lang)

@@ -42,7 +42,7 @@ int isabspath(const char *path)
 /**
  * 转义path里的'\'字符
  * @param path 待转换路径
- * @param buf  转换后的缓冲区，大小至少为PATH_MAX * 3 / 2 + 1
+ * @param buf  转换后的缓冲区，大小至少为(PATH_MAX + 1) * 3
  * @return     转换成功返回buf指针，否则返回NULL
  */
 char *pathescape(const char *path, char buf[])
